@@ -736,7 +736,10 @@ class PPO(BaseAlgo):
             }
 
         default_dof_pos = self.env.default_dof_pos[0].detach().cpu().tolist()
-        observation_dim = int(self.env.dim_obs.get("actor_obs", self._get_zero_input().shape[-1]))
+        if isinstance(self.env.dim_obs, dict):
+            observation_dim = int(self.env.dim_obs.get("actor_obs", self._get_zero_input().shape[-1]))
+        else:
+            observation_dim = int(self.env.dim_obs)
         action_dim = int(self.env.dim_actions)
         robot_type = self.env.robot_config.asset.robot_type
 

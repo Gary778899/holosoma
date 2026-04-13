@@ -21,6 +21,8 @@ Train robots to track velocity commands.
 ```bash
 # G1 with FastSAC on IsaacGym
 source scripts/source_isaacgym_setup.sh
+# Or use the uv-based IsaacGym environment
+# source scripts/source_isaacgym_uv_setup.sh
 python src/holosoma/holosoma/train_agent.py \
     exp:g1-29dof-fast-sac \
     simulator:isaacgym \
