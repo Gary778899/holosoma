@@ -728,11 +728,30 @@ class PPO(BaseAlgo):
         # Extract URDF text from the robot config
         urdf_file_path, urdf_str = get_urdf_text_from_robot_config(self.env.robot_config)
 
+        actor_group = self.env.observation_manager.cfg.groups.get("actor_obs")
+        obs_scale_summary = {}
+        if actor_group is not None:
+            obs_scale_summary = {
+                term_name: float(term_cfg.scale) for term_name, term_cfg in actor_group.terms.items()
+            }
+
+        default_dof_pos = self.env.default_dof_pos[0].detach().cpu().tolist()
+        observation_dim = int(self.env.dim_obs.get("actor_obs", self._get_zero_input().shape[-1]))
+        action_dim = int(self.env.dim_actions)
+        robot_type = self.env.robot_config.asset.robot_type
+
         metadata = {
             "dof_names": self.env.robot_config.dof_names,
+            "joint_names": self.env.robot_config.dof_names,
             "kp": kp_list,
             "kd": kd_list,
             "action_scale": action_scale_metadata,
+            "robot_type": robot_type,
+            "default_dof_pos": default_dof_pos,
+            "observation_dim": observation_dim,
+            "action_dim": action_dim,
+            "obs_scale_summary": obs_scale_summary,
+            "export_version": "holosoma_ppo_onnx_v1",
             "command_ranges": cmd_ranges,
             "robot_urdf": urdf_str,
             "robot_urdf_path": urdf_file_path,

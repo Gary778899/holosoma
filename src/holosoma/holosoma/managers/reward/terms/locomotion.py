@@ -188,6 +188,25 @@ def penalty_ang_vel_xy(env) -> torch.Tensor:
     return torch.sum(torch.square(ang_vel[:, :2]), dim=1)
 
 
+def penalty_lin_vel_z(env) -> torch.Tensor:
+    """Penalize vertical base linear velocity."""
+    lin_vel = get_base_lin_vel(env)
+    return torch.square(lin_vel[:, 2])
+
+
+def penalty_dof_vel(env) -> torch.Tensor:
+    """Penalize joint velocity magnitude."""
+    return torch.sum(torch.square(env.simulator.dof_vel), dim=1)
+
+
+def penalty_dof_acc(env) -> torch.Tensor:
+    """Penalize joint acceleration magnitude."""
+    dof_acc = getattr(env.simulator, "dof_acc", None)
+    if dof_acc is None:
+        return torch.zeros(env.num_envs, dtype=torch.float, device=env.device)
+    return torch.sum(torch.square(dof_acc), dim=1)
+
+
 def penalty_close_feet_xy(env, close_feet_threshold: float = 0.05) -> torch.Tensor:
     """Penalize when feet are too close together in xy plane.
 
@@ -213,6 +232,39 @@ def penalty_close_feet_xy(env, close_feet_threshold: float = 0.05) -> torch.Tens
 
     # Return penalty when feet are too close
     return (feet_distance < close_feet_threshold).float()
+
+
+def contact(env, stance_threshold: float = 0.55, contact_force_threshold: float = 1.0) -> torch.Tensor:
+    """Reward feet contact schedule matching gait stance/swing phase."""
+    gait_state = env.command_manager.get_state("locomotion_gait")
+    if gait_state is None or gait_state.phase is None:
+        return torch.zeros(env.num_envs, dtype=torch.float, device=env.device)
+
+    phase = (gait_state.phase + torch.pi) / (2 * torch.pi)
+    phase = torch.fmod(phase, 1.0)
+    is_stance = phase < stance_threshold
+    contact_mask = env.simulator.contact_forces[:, env.feet_indices, 2] > contact_force_threshold
+    return torch.sum((~(contact_mask ^ is_stance)).float(), dim=1)
+
+
+def contact_no_vel(env, contact_force_threshold: float = 1.0) -> torch.Tensor:
+    """Penalize non-zero foot velocity while foot is in contact."""
+    contact_mask = torch.norm(env.simulator.contact_forces[:, env.feet_indices, :3], dim=2) > contact_force_threshold
+    contact_feet_vel = env.simulator._rigid_body_vel[:, env.feet_indices, :] * contact_mask.unsqueeze(-1)
+    return torch.sum(torch.square(contact_feet_vel), dim=(1, 2))
+
+
+def feet_swing_height(env, target_height: float = 0.08, contact_force_threshold: float = 1.0) -> torch.Tensor:
+    """Penalize swing-foot height deviation from target while not in contact."""
+    contact_mask = torch.norm(env.simulator.contact_forces[:, env.feet_indices, :3], dim=2) > contact_force_threshold
+    feet_heights = env.terrain_manager.get_state("locomotion_terrain").feet_heights
+    pos_error = torch.square(feet_heights - target_height) * (~contact_mask)
+    return torch.sum(pos_error, dim=1)
+
+
+def hip_pos(env, hip_indices: list[int]) -> torch.Tensor:
+    """Penalize selected hip joint positions (typically roll/yaw joints)."""
+    return torch.sum(torch.square(env.simulator.dof_pos[:, hip_indices]), dim=1)
 
 
 def base_height(
