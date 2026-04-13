@@ -34,8 +34,11 @@ src/
 Choose the appropriate setup script based on your use case:
 
 ```bash
-# For IsaacGym training
+# For IsaacGym training (conda)
 bash scripts/setup_isaacgym.sh
+
+# For IsaacGym training (uv, default Python 3.8)
+bash scripts/setup_isaacgym_uv.sh
 
 # For IsaacSim training
 # Requires Ubuntu 22.04 or later due to IsaacSim dependencies
@@ -56,13 +59,24 @@ bash scripts/setup_retargeting.sh
 Train a G1 robot with FastSAC on IsaacGym:
 
 ```bash
+# IsaacGym with conda env
 source scripts/source_isaacgym_setup.sh
 python src/holosoma/holosoma/train_agent.py \
     exp:g1-29dof-fast-sac \
     simulator:isaacgym \
     logger:wandb \
     --training.seed 1
+
+# IsaacGym with uv env
+source scripts/source_isaacgym_uv_setup.sh
+python src/holosoma/holosoma/train_agent.py \
+  exp:g1-29dof-fast-sac \
+  simulator:isaacgym \
+  logger:wandb \
+  --training.seed 1
 ```
+
+Use `UV_PYTHON` to override the default interpreter, for example `UV_PYTHON=3.8 bash scripts/setup_isaacgym_uv.sh`.
 
 > **Note:** For headless servers, see the [training guide](src/holosoma/README.md#video-recording) for video recording configuration.
 
