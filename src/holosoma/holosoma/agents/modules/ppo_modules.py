@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 
 import torch
+import torch.nn.functional as F
 from torch import nn
 from torch.distributions import Normal
 
@@ -26,7 +27,9 @@ class PPOActor(nn.Module):
 
         self.actor_module = BaseModule(obs_dim_dict, module_config_dict, history_length)
 
-        self.std = nn.Parameter(init_noise_std * torch.ones(num_actions))
+        init_noise_std = max(float(init_noise_std), 1e-6)
+        init_noise_std_tensor = torch.full((num_actions,), init_noise_std, dtype=torch.float32)
+        self.std = nn.Parameter(torch.log(torch.expm1(init_noise_std_tensor)))
         self.min_noise_std = module_config_dict.min_noise_std
         self.min_mean_noise_std = module_config_dict.min_mean_noise_std
         self.distribution = None
@@ -72,19 +75,20 @@ class PPOActor(nn.Module):
 
     def update_distribution(self, actor_obs):
         mean = self.actor(actor_obs)
+        std = F.softplus(self.std)
         if self.min_noise_std:
-            clamped_std = torch.clamp(self.std, min=self.min_noise_std)
+            clamped_std = torch.clamp(std, min=self.min_noise_std)
             self.distribution = Normal(mean, mean * 0.0 + clamped_std)
         elif self.min_mean_noise_std:
-            current_mean = self.std.mean()
+            current_mean = std.mean()
             if current_mean < self.min_mean_noise_std:
                 scale_up = self.min_mean_noise_std / (current_mean + 1e-6)
-                clamped_std = self.std * scale_up
+                clamped_std = std * scale_up
             else:
-                clamped_std = self.std
+                clamped_std = std
             self.distribution = Normal(mean, mean * 0.0 + clamped_std)
         else:
-            self.distribution = Normal(mean, mean * 0.0 + self.std)
+            self.distribution = Normal(mean, mean * 0.0 + std)
 
     def act(self, policy_state_dict):
         self.update_distribution(policy_state_dict["actor_obs"])

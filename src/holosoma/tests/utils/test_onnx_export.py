@@ -79,5 +79,33 @@ def test_export_policy_as_onnx():
         assert output_shape.dim[1].dim_value == ACT_DIM
 
 
+def test_ppo_actor_std_remains_positive():
+    """Test PPO actor keeps a valid positive standard deviation."""
+    OBS_DIM, ACT_DIM = 10, 5
+
+    module_config = ModuleConfig(
+        type="MLP",
+        input_dim=["actor_obs"],
+        output_dim=[ACT_DIM],
+        layer_config=LayerConfig(hidden_dims=[64], activation="ReLU", dropout_prob=0.0),
+        min_noise_std=None,
+        min_mean_noise_std=None,
+    )
+
+    actor = setup_ppo_actor_module(
+        obs_dim_dict={"actor_obs": OBS_DIM},
+        module_config=module_config,
+        num_actions=ACT_DIM,
+        init_noise_std=0.1,
+        device="cpu",
+        history_length={"actor_obs": 1},
+    )
+
+    actor.std.data.fill_(-10.0)
+    actor.update_distribution(torch.zeros(1, OBS_DIM))
+
+    assert torch.all(actor.action_std > 0.0)
+
+
 if __name__ == "__main__":
     test_export_policy_as_onnx()
