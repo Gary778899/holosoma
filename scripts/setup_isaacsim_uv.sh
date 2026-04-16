@@ -52,9 +52,6 @@ require_cmd() {
 }
 
 require_cmd uv
-require_cmd git
-require_cmd sed
-require_cmd realpath
 
 warn_missing_cmd() {
   local cmd="$1"
@@ -64,7 +61,40 @@ warn_missing_cmd() {
   fi
 }
 
-# Preflight checks only. This script intentionally does not install system packages.
+# Install required system packages.
+install_system_packages() {
+  local os_name
+  os_name="$(uname -s)"
+
+  if [[ "$os_name" == "Linux" ]]; then
+    if command -v apt-get &> /dev/null; then
+      sudo apt-get update
+      sudo apt-get install -y build-essential cmake wget git coreutils sed
+    else
+      echo "Warning: apt-get not found; cannot auto-install Linux system packages"
+    fi
+  elif [[ "$os_name" == "Darwin" ]]; then
+    if ! command -v brew &> /dev/null; then
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      echo >> "$HOME/.zprofile"
+      echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> "$HOME/.zprofile"
+      eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+
+    if ! command -v gcc &> /dev/null || ! command -v g++ &> /dev/null; then
+      xcode-select --install || true
+    fi
+
+    brew install cmake wget git coreutils gnu-sed
+  fi
+}
+
+install_system_packages
+
+# Validate expected tools after auto-install.
+require_cmd git
+require_cmd sed
+require_cmd realpath
 warn_missing_cmd cmake "IsaacLab build steps may fail without it."
 warn_missing_cmd gcc "Native extension builds may fail without a C compiler."
 warn_missing_cmd g++ "Native extension builds may fail without a C++ compiler."
