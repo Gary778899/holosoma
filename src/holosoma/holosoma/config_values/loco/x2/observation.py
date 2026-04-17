@@ -2,7 +2,7 @@
 
 from holosoma.config_types.observation import ObservationManagerCfg, ObsGroupCfg, ObsTermCfg
 
-x2_12dof_loco_single_wolinvel = ObservationManagerCfg(
+x2_29dof_loco_single_wolinvel = ObservationManagerCfg(
     groups={
         "actor_obs": ObsGroupCfg(
             concatenate=True,
@@ -116,4 +116,4 @@ x2_12dof_loco_single_wolinvel = ObservationManagerCfg(
     }
 )
 
-__all__ = ["x2_12dof_loco_single_wolinvel"]
+__all__ = ["x2_29dof_loco_single_wolinvel"]

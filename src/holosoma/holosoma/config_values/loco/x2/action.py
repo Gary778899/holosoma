@@ -2,7 +2,7 @@
 
 from holosoma.config_types.action import ActionManagerCfg, ActionTermCfg
 
-x2_12dof_joint_pos = ActionManagerCfg(
+x2_29dof_joint_pos = ActionManagerCfg(
     terms={
         "joint_control": ActionTermCfg(
             func="holosoma.managers.action.terms.joint_control:JointPositionActionTerm",
@@ -13,4 +13,4 @@ x2_12dof_joint_pos = ActionManagerCfg(
     }
 )
 
-__all__ = ["x2_12dof_joint_pos"]
+__all__ = ["x2_29dof_joint_pos"]

@@ -2,7 +2,7 @@
 
 from holosoma.config_types.command import CommandManagerCfg, CommandTermCfg
 
-x2_12dof_command = CommandManagerCfg(
+x2_29dof_command = CommandManagerCfg(
     params={
         "locomotion_command_resampling_time": 10.0,
     },
@@ -37,4 +37,5 @@ x2_12dof_command = CommandManagerCfg(
     },
 )
 
-__all__ = ["x2_12dof_command"]
+
+__all__ = ["x2_29dof_command"]

@@ -2,13 +2,13 @@
 
 from holosoma.config_types.randomization import RandomizationManagerCfg, RandomizationTermCfg
 
-x2_12dof_randomization = RandomizationManagerCfg(
+x2_29dof_randomization = RandomizationManagerCfg(
     setup_terms={
         "push_randomizer_state": RandomizationTermCfg(
             func="holosoma.managers.randomization.terms.locomotion:PushRandomizerState",
             params={
-                "push_interval_s": [5, 5],
-                "max_push_vel": [1.5, 1.5],
+                "push_interval_s": [5, 10],
+                "max_push_vel": [1.0, 1.0],
                 "enabled": True,
             },
         ),
@@ -55,7 +55,7 @@ x2_12dof_randomization = RandomizationManagerCfg(
         "randomize_friction_startup": RandomizationTermCfg(
             func="holosoma.managers.randomization.terms.locomotion:randomize_friction_startup",
             params={
-                "friction_range": [0.1, 1.25],
+                "friction_range": [0.5, 1.25],
                 "enabled": True,
             },
         ),
@@ -103,4 +103,4 @@ x2_12dof_randomization = RandomizationManagerCfg(
     },
 )
 
-__all__ = ["x2_12dof_randomization"]
+__all__ = ["x2_29dof_randomization"]

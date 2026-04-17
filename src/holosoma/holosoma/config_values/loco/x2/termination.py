@@ -2,7 +2,7 @@
 
 from holosoma.config_types.termination import TerminationManagerCfg, TerminationTermCfg
 
-x2_12dof_termination = TerminationManagerCfg(
+x2_29dof_termination = TerminationManagerCfg(
     terms={
         "contact": TerminationTermCfg(
             func="holosoma.managers.termination.terms.locomotion:contact_forces_exceeded",
@@ -18,4 +18,4 @@ x2_12dof_termination = TerminationManagerCfg(
     }
 )
 
-__all__ = ["x2_12dof_termination"]
+__all__ = ["x2_29dof_termination"]

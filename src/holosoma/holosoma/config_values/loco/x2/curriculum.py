@@ -2,7 +2,7 @@
 
 from holosoma.config_types.curriculum import CurriculumManagerCfg, CurriculumTermCfg
 
-x2_12dof_curriculum = CurriculumManagerCfg(
+x2_29dof_curriculum = CurriculumManagerCfg(
     setup_terms={
         "average_episode_tracker": CurriculumTermCfg(
             func="holosoma.managers.curriculum.terms.locomotion:AverageEpisodeLengthTracker",
@@ -26,4 +26,4 @@ x2_12dof_curriculum = CurriculumManagerCfg(
     step_terms={},
 )
 
-__all__ = ["x2_12dof_curriculum"]
+__all__ = ["x2_29dof_curriculum"]
