@@ -3,6 +3,7 @@
 from dataclasses import replace
 from importlib.metadata import entry_points
 
+from holosoma.holosoma.config_values import loco
 import tyro
 from typing_extensions import Annotated
 
@@ -18,6 +19,12 @@ _g1_safety_secondary = InferenceConfig(
     task=task.safety_locomotion_g1,
 )
 
+_x2_safety_secondary = InferenceConfig(
+    robot=robot.x2_29dof,
+    observation=observation.loco_x2_29dof,
+    task=task.safety_locomotion_x2,  # FastSAC G1 works reasonably well zero-shot on X2
+)
+
 g1_29dof_loco = InferenceConfig(
     robot=robot.g1_29dof,
     observation=observation.loco_g1_29dof,
@@ -31,6 +38,11 @@ t1_29dof_loco = InferenceConfig(
     task=task.locomotion,
 )
 
+x2_29dof_loco = InferenceConfig(
+    robot=robot.x2_29dof,
+    observation=observation.loco_x2_29dof,
+    task=task.locomotion,
+)
 # fmt: off
 _g1_29dof_wbt_robot = replace(
     robot.g1_29dof,
@@ -69,6 +81,7 @@ g1_29dof_wbt = InferenceConfig(
 DEFAULTS = {
     "g1-29dof-loco": g1_29dof_loco,
     "t1-29dof-loco": t1_29dof_loco,
+    "x2-29dof-loco": x2_29dof_loco,
     "g1-29dof-wbt": g1_29dof_wbt,
 }
 

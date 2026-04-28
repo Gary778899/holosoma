@@ -100,6 +100,39 @@ loco_t1_29dof = ObservationConfig(
     },
 )
 
+x2_29dof = ObservationConfig(
+    obs_dict={
+        "actor_obs": [
+            "base_ang_vel",
+            "projected_gravity",
+            "command_lin_vel",      
+            "command_ang_vel",
+            "dof_pos",
+            "dof_vel",
+        ]
+    },
+    obs_dims={
+        "base_lin_vel": 3,
+        "base_ang_vel": 3,
+        "projected_gravity": 3,
+        "command_lin_vel": 2,
+        "command_ang_vel": 1,
+        "dof_pos": 29,
+        "dof_vel": 29,
+    },
+    obs_scales={
+        "base_lin_vel": 1.0,
+        "base_ang_vel": 1.0,
+        "projected_gravity": 1.0,
+        "command_lin_vel": 1.0,
+        "command_ang_vel": 1.0,
+        "dof_pos": 1.0,
+        "dof_vel": 0.1,
+    },
+    history_length_dict={
+        "actor_obs": 1,
+    },
+)
 
 # =============================================================================
 # WBT (Whole Body Tracking) Observation Configurations
